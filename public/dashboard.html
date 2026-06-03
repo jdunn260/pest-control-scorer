@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Pest Control Scorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">🐛 <span>Pest</span>Score</a>
+  <a href="/">Upload</a>
+  <a href="/dashboard.html" class="active">Dashboard</a>
+</nav>
+
+<div class="page-wide">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+    <h1>Scored Calls</h1>
+    <button class="btn btn-sm btn-ghost" id="refreshBtn">↻ Refresh</button>
+  </div>
+  <p class="subtitle" id="subtitle">Loading calls…</p>
+
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-wrap">
+      <table id="callsTable">
+        <thead>
+          <tr>
+            <th>Rep Name</th>
+            <th>Date &amp; Time</th>
+            <th>Disposition</th>
+            <th>Score</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <p>Loading…</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function scoreClass(score) {
+  if (score === null || score === undefined) return '';
+  if (score >= 80) return 'score-green';
+  if (score >= 60) return 'score-amber';
+  return 'score-red';
+}
+
+function renderScore(call) {
+  if (call.status === 'complete' && call.score !== null) {
+    return `<span class="score-chip ${scoreClass(call.score)}">${call.score}</span>`;
+  }
+  if (call.status === 'error') return `<span class="status-error">Error</span>`;
+  return `<span class="status-pending">Processing…</span>`;
+}
+
+function renderRow(call) {
+  const dispBadge = call.disposition === 'Closed'
+    ? `<span class="badge badge-closed">Closed</span>`
+    : `<span class="badge badge-follow">Follow-Up</span>`;
+
+  const viewBtn = call.status === 'complete'
+    ? `<a href="/scorecard.html?id=${call.id}" class="btn btn-sm btn-ghost">View Scorecard</a>`
+    : `<span style="color:var(--text-muted);font-size:12px;">${call.status === 'error' ? 'Failed' : 'Pending…'}</span>`;
+
+  return `
+    <tr data-id="${call.id}">
+      <td><strong>${escapeHtml(call.rep_name)}</strong></td>
+      <td style="color:var(--text-muted)">${formatDate(call.created_at)}</td>
+      <td>${dispBadge}</td>
+      <td>${renderScore(call)}</td>
+      <td style="text-align:right">${viewBtn}</td>
+    </tr>`;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function loadCalls() {
+  const tbody = document.getElementById('tableBody');
+  try {
+    const res = await fetch('/api/calls');
+    const calls = await res.json();
+    const sub = document.getElementById('subtitle');
+
+    if (!calls.length) {
+      tbody.innerHTML = `<tr><td colspan="5">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>No calls scored yet. <a href="/" style="color:var(--accent)">Upload your first call →</a></p>
+        </div>
+      </td></tr>`;
+      sub.textContent = 'No calls yet.';
+      return;
+    }
+
+    const complete = calls.filter(c => c.status === 'complete');
+    const avg = complete.length
+      ? Math.round(complete.reduce((s, c) => s + c.score, 0) / complete.length)
+      : null;
+
+    sub.textContent = `${calls.length} call${calls.length !== 1 ? 's' : ''} scored${avg !== null ? ' · Avg score: ' + avg : ''}`;
+    tbody.innerHTML = calls.map(renderRow).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);padding:20px">Failed to load calls.</td></tr>`;
+  }
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadCalls);
+loadCalls();
+
+// Auto-refresh if any pending rows
+setInterval(async () => {
+  const pendingRows = document.querySelectorAll('[data-id]');
+  const hasPending = Array.from(pendingRows).some(row => {
+    return row.querySelector('.status-pending');
+  });
+  if (hasPending) loadCalls();
+}, 5000);
+</script>
+</body>
+</html>

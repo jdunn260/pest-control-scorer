@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scorecard — Pest Control Scorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">🐛 <span>Pest</span>Score</a>
+  <a href="/">Upload</a>
+  <a href="/dashboard.html">Dashboard</a>
+</nav>
+
+<div class="page" id="content" style="display:none">
+  <div style="margin-bottom:24px">
+    <a href="/dashboard.html" style="color:var(--text-muted);text-decoration:none;font-size:13px">← Back to Dashboard</a>
+  </div>
+
+  <div class="scorecard-header">
+    <div class="scorecard-meta">
+      <h2 id="repName"></h2>
+      <div class="meta-row">
+        <span class="meta-item" id="metaDate"></span>
+        <span class="meta-item" id="metaDisposition"></span>
+      </div>
+    </div>
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-number" id="scoreNumber"></div>
+      <div class="score-label">/ 100</div>
+    </div>
+  </div>
+
+  <!-- Calculation -->
+  <div class="card">
+    <div class="card-title">Score Calculation</div>
+    <div class="calculation-box" id="calculation"></div>
+  </div>
+
+  <!-- Steps -->
+  <div class="card">
+    <div class="card-title">Step Breakdown</div>
+    <div class="steps-grid" id="stepsGrid"></div>
+  </div>
+
+  <!-- Notes -->
+  <div class="card">
+    <div class="card-title">Call Analysis</div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-label">Summary</div>
+        <div class="info-card-body" id="summary"></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Compliance Note</div>
+        <div class="info-card-body" id="complianceNote"></div>
+      </div>
+      <div class="info-card" style="grid-column: 1 / -1">
+        <div class="info-card-label">Coaching Note</div>
+        <div class="info-card-body" id="qualityNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transcript -->
+  <div class="card" id="transcriptCard" style="display:none">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+      Transcript
+      <button class="btn btn-sm btn-ghost" id="toggleTranscript">Show</button>
+    </div>
+    <div class="transcript-box" id="transcript" style="display:none"></div>
+  </div>
+</div>
+
+<div class="page" id="loading">
+  <p style="color:var(--text-muted)">Loading scorecard…</p>
+</div>
+
+<div class="page" id="errorPage" style="display:none">
+  <p style="color:var(--red)">Failed to load scorecard.</p>
+  <a href="/dashboard.html" class="btn btn-sm btn-ghost" style="margin-top:16px;width:auto">Back to Dashboard</a>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+
+if (!id) {
+  location.href = '/dashboard.html';
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+    + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function statusBadge(status) {
+  const map = {
+    pass: 'status-pass',
+    fail: 'status-fail',
+    partial: 'status-partial',
+    na: 'status-na'
+  };
+  const labels = { pass: 'Pass', fail: 'Fail', partial: 'Partial', na: 'N/A' };
+  const cls = map[status] || 'status-na';
+  return `<span class="step-status-badge ${cls}">${labels[status] || status}</span>`;
+}
+
+function deductionDisplay(d) {
+  if (d === null || d === undefined) return '<span class="deduct-na">N/A</span>';
+  if (d === 0) return '<span class="deduct-0">−0</span>';
+  return `<span class="deduct-pos">−${d}</span>`;
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function load() {
+  try {
+    const res = await fetch(`/api/calls/${id}`);
+    if (!res.ok) throw new Error('Not found');
+    const call = await res.json();
+
+    document.getElementById('loading').style.display = 'none';
+
+    if (call.status !== 'complete' || !call.scorecard) {
+      document.getElementById('errorPage').style.display = 'block';
+      document.getElementById('errorPage').querySelector('p').textContent =
+        call.status === 'error' ? `Scoring failed: ${call.error || 'Unknown error'}` : 'This call is still being processed.';
+      return;
+    }
+
+    const sc = call.scorecard;
+    const score = sc.score;
+
+    // Header
+    document.getElementById('repName').textContent = call.rep_name;
+    document.getElementById('metaDate').textContent = formatDate(call.created_at);
+    document.getElementById('metaDisposition').innerHTML =
+      call.disposition === 'Closed'
+        ? '<span class="badge badge-closed">Closed</span>'
+        : '<span class="badge badge-follow">Follow-Up</span>';
+
+    // Score circle
+    const circle = document.getElementById('scoreCircle');
+    document.getElementById('scoreNumber').textContent = score;
+    if (score >= 80) circle.classList.add('green');
+    else if (score >= 60) circle.classList.add('amber');
+    else circle.classList.add('red');
+
+    // Calculation
+    document.getElementById('calculation').textContent = sc.calculation;
+
+    // Steps
+    const grid = document.getElementById('stepsGrid');
+    grid.innerHTML = sc.steps.map(step => `
+      <div class="step-card">
+        <div>
+          <div class="step-name">${escapeHtml(step.name)}</div>
+          <div class="step-note">${escapeHtml(step.note)}</div>
+        </div>
+        <div>${deductionDisplay(step.deduction)}</div>
+        <div>${statusBadge(step.status)}</div>
+      </div>
+    `).join('');
+
+    // Notes
+    document.getElementById('summary').textContent = sc.summary;
+    document.getElementById('complianceNote').textContent = sc.compliance_note;
+    document.getElementById('qualityNote').textContent = sc.quality_note;
+
+    // Transcript
+    if (call.transcript) {
+      const card = document.getElementById('transcriptCard');
+      const box = document.getElementById('transcript');
+      card.style.display = 'block';
+      box.textContent = call.transcript;
+      document.getElementById('toggleTranscript').addEventListener('click', () => {
+        const hidden = box.style.display === 'none';
+        box.style.display = hidden ? 'block' : 'none';
+        document.getElementById('toggleTranscript').textContent = hidden ? 'Hide' : 'Show';
+      });
+    }
+
+    document.getElementById('content').style.display = 'block';
+    document.title = `${call.rep_name} — Scorecard`;
+
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('errorPage').style.display = 'block';
+  }
+}
+
+load();
+</script>
+</body>
+</html>

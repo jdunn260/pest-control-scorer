@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Call — Pest Control Scorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">🐛 <span>Pest</span>Score</a>
+  <a href="/" class="active">Upload</a>
+  <a href="/dashboard.html">Dashboard</a>
+</nav>
+
+<div class="page">
+  <h1>Score a Call</h1>
+  <p class="subtitle">Upload an MP3 recording to transcribe and score it automatically.</p>
+
+  <form id="uploadForm">
+    <div class="card">
+      <div class="card-title">Call Details</div>
+
+      <div class="form-group">
+        <label for="repName">Rep Name</label>
+        <input type="text" id="repName" placeholder="e.g. Marcus Johnson" autocomplete="off" required>
+      </div>
+
+      <div class="form-group">
+        <label>Call Disposition</label>
+        <div class="disposition-group">
+          <div class="disposition-btn active" data-value="Follow-Up">Follow-Up</div>
+          <div class="disposition-btn" data-value="Closed">Closed</div>
+        </div>
+        <input type="hidden" id="disposition" value="Follow-Up">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Audio File</div>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".mp3,audio/*">
+        <div class="drop-icon">🎙️</div>
+        <div class="drop-label">Drop MP3 here or click to browse</div>
+        <div class="drop-sub">Supports MP3, M4A, WAV &mdash; up to 200 MB</div>
+      </div>
+      <div class="file-selected" id="fileSelected">
+        <span class="file-icon">🎵</span>
+        <span class="file-name" id="fileName"></span>
+        <span class="file-size" id="fileSize"></span>
+        <span class="remove-file" id="removeFile" title="Remove">✕</span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn" disabled>
+      <span id="btnIcon">⬆</span>
+      <span id="btnText">Submit for Scoring</span>
+    </button>
+  </form>
+
+  <div class="status-box" id="statusBox">
+    <div class="status-header">
+      <div class="spinner" id="statusSpinner"></div>
+      <div class="status-title" id="statusTitle">Processing call…</div>
+    </div>
+    <div class="steps-list">
+      <div class="step-item" id="step-uploading">
+        <div class="step-dot"></div>Uploading audio file
+      </div>
+      <div class="step-item" id="step-transcribing">
+        <div class="step-dot"></div>Transcribing with AssemblyAI
+      </div>
+      <div class="step-item" id="step-scoring">
+        <div class="step-dot"></div>Scoring with Claude AI
+      </div>
+    </div>
+    <div class="success-banner" id="successBanner">
+      <span class="success-icon">✅</span>
+      <div class="success-text">
+        <strong>Scoring complete!</strong>
+        <span>Your call has been scored and saved.</span>
+      </div>
+      <div class="success-score" id="successScore"></div>
+    </div>
+    <div class="error-banner" id="errorBanner"></div>
+  </div>
+</div>
+
+<script>
+// Disposition toggle
+document.querySelectorAll('.disposition-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.disposition-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('disposition').value = btn.dataset.value;
+  });
+});
+
+// File input handling
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileSelected = document.getElementById('fileSelected');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+const removeFile = document.getElementById('removeFile');
+const submitBtn = document.getElementById('submitBtn');
+let selectedFile = null;
+
+function formatBytes(bytes) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function setFile(file) {
+  selectedFile = file;
+  fileName.textContent = file.name;
+  fileSize.textContent = formatBytes(file.size);
+  fileSelected.classList.add('show');
+  checkReady();
+}
+
+function clearFile() {
+  selectedFile = null;
+  fileInput.value = '';
+  fileSelected.classList.remove('show');
+  checkReady();
+}
+
+function checkReady() {
+  const hasFile = !!selectedFile;
+  const hasName = document.getElementById('repName').value.trim().length > 0;
+  submitBtn.disabled = !(hasFile && hasName);
+}
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setFile(fileInput.files[0]);
+});
+removeFile.addEventListener('click', clearFile);
+document.getElementById('repName').addEventListener('input', checkReady);
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) setFile(file);
+});
+
+// Step state helpers
+const stepIds = ['uploading', 'transcribing', 'scoring'];
+function setStepState(stepId, state) {
+  const el = document.getElementById('step-' + stepId);
+  if (!el) return;
+  el.className = 'step-item' + (state ? ' ' + state : '');
+}
+function activateStep(stepId) {
+  stepIds.forEach(id => {
+    const el = document.getElementById('step-' + id);
+    if (el.classList.contains('active') || el.classList.contains('done')) {
+      // keep done states
+    }
+  });
+  setStepState(stepId, 'active');
+}
+
+// Submit
+document.getElementById('uploadForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!selectedFile) return;
+
+  const repName = document.getElementById('repName').value.trim();
+  const disposition = document.getElementById('disposition').value;
+
+  submitBtn.disabled = true;
+  document.getElementById('btnText').textContent = 'Uploading…';
+
+  const statusBox = document.getElementById('statusBox');
+  statusBox.classList.add('show');
+  document.getElementById('successBanner').classList.remove('show');
+  document.getElementById('errorBanner').classList.remove('show');
+  stepIds.forEach(id => setStepState(id, ''));
+  setStepState('uploading', 'active');
+
+  const formData = new FormData();
+  formData.append('audio', selectedFile);
+  formData.append('rep_name', repName);
+  formData.append('disposition', disposition);
+
+  let callId;
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    callId = data.callId;
+  } catch (err) {
+    showError(err.message);
+    submitBtn.disabled = false;
+    document.getElementById('btnText').textContent = 'Submit for Scoring';
+    return;
+  }
+
+  document.getElementById('btnText').textContent = 'Processing…';
+  listenForUpdates(callId);
+});
+
+function listenForUpdates(callId) {
+  const es = new EventSource(`/api/status/${callId}`);
+
+  es.addEventListener('status', e => {
+    const data = JSON.parse(e.data);
+    const step = data.step;
+    const msg = data.message;
+
+    document.getElementById('statusTitle').textContent = msg;
+
+    if (step === 'uploading') {
+      setStepState('uploading', 'active');
+    } else if (step === 'transcribing') {
+      setStepState('uploading', 'done');
+      setStepState('transcribing', 'active');
+    } else if (step === 'scoring') {
+      setStepState('uploading', 'done');
+      setStepState('transcribing', 'done');
+      setStepState('scoring', 'active');
+    }
+  });
+
+  es.addEventListener('complete', e => {
+    const data = JSON.parse(e.data);
+    es.close();
+    setStepState('uploading', 'done');
+    setStepState('transcribing', 'done');
+    setStepState('scoring', 'done');
+    document.getElementById('statusSpinner').style.display = 'none';
+    document.getElementById('statusTitle').textContent = 'Complete!';
+
+    const score = data.score;
+    const scoreEl = document.getElementById('successScore');
+    scoreEl.textContent = score + '/100';
+    scoreEl.style.color = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--amber)' : 'var(--red)';
+    document.getElementById('successBanner').classList.add('show');
+
+    document.getElementById('btnText').textContent = 'Submit for Scoring';
+    document.getElementById('btnIcon').textContent = '⬆';
+    submitBtn.disabled = false;
+
+    // Add link to view scorecard
+    const banner = document.getElementById('successBanner');
+    let link = banner.querySelector('.view-link');
+    if (!link) {
+      link = document.createElement('a');
+      link.className = 'btn btn-sm btn-ghost view-link';
+      link.style.marginLeft = '8px';
+      link.style.whiteSpace = 'nowrap';
+      banner.appendChild(link);
+    }
+    link.href = `/scorecard.html?id=${data.callId}`;
+    link.textContent = 'View Scorecard →';
+  });
+
+  es.addEventListener('error', e => {
+    let msg = 'Processing failed. Please try again.';
+    try { msg = JSON.parse(e.data).message; } catch {}
+    es.close();
+    setStepState('scoring', 'error-state');
+    document.getElementById('statusSpinner').style.display = 'none';
+    showError(msg);
+    document.getElementById('btnText').textContent = 'Submit for Scoring';
+    submitBtn.disabled = false;
+  });
+
+  // SSE connection error (network)
+  es.onerror = () => {
+    // Don't close — SSE auto-reconnects; only close on explicit error event
+  };
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBanner');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+}
+</script>
+</body>
+</html>
