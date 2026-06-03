@@ -74,7 +74,8 @@ Rep must make at least 3 attempts to overcome objections or make offers. Any 3 a
 
 CLOSED CALLS ONLY:
 STEP 7 — Went over contract (max deduction: 21 pts)
-Rep must explicitly confirm all four: price, billing frequency, contract length, and cancellation fee. All four required. Any missing = deduct 21.
+This step is strictly all or nothing. The rep must explicitly confirm all four of the following elements during the contract review portion of the call: price, billing frequency, contract length, and cancellation fee. If any single element is missing, deduct the full 21 points. There is no partial credit under any circumstances.
+Important: credit is only given for what the rep states during the contract review itself. Do not give credit for any of the four elements if they were only mentioned earlier in the call (e.g. during the pitch or objection handling). The rep must reconfirm all four explicitly as part of going over the contract.
 For the cancellation fee specifically: the rep does NOT need to state a specific dollar amount. It is sufficient if the rep communicates the concept — e.g. explaining it as "reimbursing the initial discount," "paying back the discount on the first visit," or any similar explanation that conveys what the cancellation fee represents. A specific dollar amount is acceptable but not required.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
