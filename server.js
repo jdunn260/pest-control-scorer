@@ -73,15 +73,17 @@ STEP 6 — RACs (max deduction: 10 pts)
 If the call disposition is Closed, automatically award full points for this step — no deduction regardless of how many RAC attempts were made. A closed call is proof the rep successfully moved the customer through the sales process.
 If the call disposition is Follow-Up, evaluate normally: rep must make at least 3 attempts to overcome objections or make offers. Any 3 attempts count as a pass. Fewer than 3 = deduct 10.
 
-CLOSED CALLS ONLY:
-STEP 7 — Went over contract (max deduction: 21 pts)
-There are exactly THREE required elements. If all three are present in any form during the contract review, award full points. If any one is missing, deduct 21 points. No partial credit.
-- Price: any mention of what the customer will be charged, even if stated earlier and referenced implicitly
-- Contract length: any mention of the term, number of services, or duration of the agreement
-- Cancellation fee: passing back or reimbursing the initial discount is fully acceptable. A specific dollar amount is NOT required.
-Billing frequency is NOT a required element. Do not deduct points for missing billing frequency.
-Example of a PASS: "4 services, once every 3 months, pay back the initial discount if you cancel early" — price is implied by the service structure, contract length is covered by "4 services," and the cancellation fee is covered by "pay back the initial discount." All three elements are present. This is a pass.
-Conversational or informal delivery is fine. Do not require a formal review format.
+STEP 7 — Went over contract (max deduction: 21 pts, CLOSED CALLS ONLY)
+The rep must confirm exactly three things during the contract review. If all three are present, award full points. If any one is missing, deduct 21 points. No partial credit.
+The three required elements are:
+
+PRICE — rep states what the customer will be charged. Any amount mentioned counts.
+CONTRACT LENGTH — rep states the duration or number of services (e.g. 12 months, 24 months, 4 services).
+CANCELLATION FEE — rep explains what happens if the customer cancels early. Acceptable in two forms only: a specific dollar amount (e.g. "$200 cancellation fee") OR an explanation that the customer reimburses or pays back the initial discount or first visit discount. Both forms are a pass. Do not fail this element for any other reason.
+
+BILLING FREQUENCY IS NOT A REQUIRED ELEMENT. Do not deduct points for missing billing frequency under any circumstances.
+Do not require formal language. Conversational confirmation counts.
+Do not give partial credit. It is all three or nothing.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
 The rep must make a clear attempt to collect payment information on the call. The following all count as a pass:
