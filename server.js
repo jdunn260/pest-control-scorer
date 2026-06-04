@@ -83,7 +83,12 @@ Credit is only given for what the rep communicates during the contract review it
 Formal or structured language is not required. Conversational confirmation of all three elements is sufficient — do not deduct points if the information is present but delivered informally.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
-Rep must obtain payment method or clear plan for payment before hanging up. If not resolved, deduct 10.
+The rep must make a clear attempt to collect payment information on the call. The following all count as a pass:
+- Customer provides a card number over the phone
+- Rep directs the customer to enter their card in a service document or online portal, even if the customer is still in the process of entering it at the end of the call
+- Any clear attempt by the rep to collect payment information where the customer is actively complying
+- A clear plan for payment collection is established during the call
+Only deduct 10 points if the rep made no attempt to collect payment information and defaulted to having the technician collect payment at the appointment, or if payment was never discussed at all.
 
 Respond ONLY with a valid JSON object with this structure:
 {
