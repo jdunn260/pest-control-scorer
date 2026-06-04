@@ -93,12 +93,10 @@ Do not require formal language. Conversational confirmation counts.
 Do not give partial credit. It is all three or nothing.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
-The rep must make a clear attempt to collect payment information on the call. The following all count as a pass:
-- Customer provides a card number over the phone
-- Rep directs the customer to enter their card in a service document or online portal, even if the customer is still in the process of entering it at the end of the call
-- Any clear attempt by the rep to collect payment information where the customer is actively complying
-- A clear plan for payment collection is established during the call
-Only deduct 10 points if the rep made no attempt to collect payment information and defaulted to having the technician collect payment at the appointment, or if payment was never discussed at all.
+This step is strictly pass or fail. No partial credit under any circumstances.
+Pass (deduct 0): rep obtained a payment method or established a clear payment plan in any form — card over the phone, directing the customer to enter a card in a portal or service document, any active payment collection attempt the customer is complying with, or any clear plan for how payment will be collected.
+Fail (deduct 10): rep made no attempt to collect payment and defaulted to having the technician collect it at the appointment, or payment was never discussed at all.
+Do not deduct partial points for any reason on this step.
 
 SCORE CALCULATION:
 After identifying all deductions, calculate the final score as exactly 100 minus the sum of all deductions. Do not round, estimate, or approximate. The score field must equal exactly 100 minus the total deductions — if the math shows 66, the score is 66, not 67 or 68. Show the full math in the calculation field in this format: "100 - [deduction 1] - [deduction 2] ... = [final score]". The number at the end of the calculation string must match the score field exactly.
