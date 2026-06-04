@@ -171,6 +171,9 @@ async function processCall(callId, filePath, disposition) {
 
     if (!transcript) throw new Error('Transcription timed out');
 
+    // Redact credit card numbers (16 digits, with or without spaces/dashes between groups of 4)
+    transcript = transcript.replace(/\b(\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4})\b/g, '[REDACTED]');
+
     db.updateCall(callId, { transcript, status: 'scoring' });
 
     // Step 4: Score with Claude
