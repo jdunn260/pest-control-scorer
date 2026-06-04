@@ -70,7 +70,8 @@ STEP 5 — Multiyear contract (max deduction: 10 pts)
 Rep should start at 24-month contract. Deduct 0 for 24mo, 5 for 18mo, 10 for 12mo. If contract length not mentioned, mark N/A — no deduction. On follow-up calls, only scored if contract length is discussed.
 
 STEP 6 — RACs (max deduction: 10 pts)
-Rep must make at least 3 attempts to overcome objections or make offers. Any 3 attempts count as a pass. Fewer than 3 = deduct 10.
+If the call disposition is Closed, automatically award full points for this step — no deduction regardless of how many RAC attempts were made. A closed call is proof the rep successfully moved the customer through the sales process.
+If the call disposition is Follow-Up, evaluate normally: rep must make at least 3 attempts to overcome objections or make offers. Any 3 attempts count as a pass. Fewer than 3 = deduct 10.
 
 CLOSED CALLS ONLY:
 STEP 7 — Went over contract (max deduction: 21 pts)
