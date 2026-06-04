@@ -55,7 +55,7 @@ The rep must ask or confirm all 5 of the following. If the customer volunteers t
 - What pests they are dealing with
 - What type of property it is and whether they are the homeowner / decision maker (combined — counts as one question)
 - Whether they have had pest control before
-- Whether they want to get this done ASAP
+- Timing / urgency: no deduction if (a) the rep explicitly asks if the customer wants service ASAP, (b) the rep assumes urgency and mentions getting it done as soon as possible, (c) the rep asks any question about timeline or scheduling, or (d) the customer volunteers any information about their timeline or urgency unprompted. Only deduct 2 points if the topic of timing or urgency is never addressed at all by either the rep or the customer.
 
 STEP 2 — Service description (max deduction: 10 pts)
 Rep must address caller's primary pest concern and give a brief overview of other service aspects. All or nothing.
