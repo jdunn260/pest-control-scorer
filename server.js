@@ -82,16 +82,13 @@ If the call disposition is Closed, automatically award full points for this step
 If the call disposition is Follow-Up, evaluate normally: rep must make at least 3 attempts to overcome objections or make offers. Any 3 attempts count as a pass. Fewer than 3 = deduct 10.
 
 STEP 7 — Went over contract (max deduction: 21 pts, CLOSED CALLS ONLY)
-The rep must confirm exactly three things during the contract review. If all three are present, award full points. If any one is missing, deduct 21 points. No partial credit.
-The three required elements are:
+THERE ARE ONLY THREE REQUIRED ELEMENTS. BILLING FREQUENCY IS NOT REQUIRED AND MUST NEVER BE USED AS A REASON TO DEDUCT POINTS.
+The three elements are:
 
-PRICE — rep states what the customer will be charged. Any amount mentioned counts.
-CONTRACT LENGTH — rep states the duration or number of services (e.g. 12 months, 24 months, 4 services).
-CANCELLATION FEE — rep explains what happens if the customer cancels early. Acceptable in two forms only: a specific dollar amount (e.g. "$200 cancellation fee") OR an explanation that the customer reimburses or pays back the initial discount or first visit discount. Both forms are a pass. Do not fail this element for any other reason.
-
-BILLING FREQUENCY IS NOT A REQUIRED ELEMENT. Do not deduct points for missing billing frequency under any circumstances.
-Do not require formal language. Conversational confirmation counts.
-Do not give partial credit. It is all three or nothing.
+PRICE — any price mentioned during the contract review counts. Does not need to match the final agreed price exactly.
+CONTRACT LENGTH — any mention of the duration or number of services counts.
+CANCELLATION FEE — EITHER a specific dollar amount OR any mention anywhere on the call of reimbursing, paying back, or returning the initial discount or first visit discount. It does not need to be restated during the contract review if it was mentioned earlier on the call. Any reference to the initial discount being returned upon cancellation is a pass.
+If all three are present anywhere on the call, award full points. If any one of the three is completely absent from the entire call, deduct 21 points. No partial credit. No exceptions.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
 This step is strictly pass or fail. No partial credit under any circumstances.
