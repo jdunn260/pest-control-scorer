@@ -53,7 +53,7 @@ STEP 1 — Intro (max deduction: 10 pts)
 The rep must ask or confirm all 5 of the following. If the customer volunteers the information unprompted, no deduction for that question. Deduct 2 points per missed question:
 - Zip code / city / location
 - What pests they are dealing with
-- What type of property it is and whether they are the homeowner / decision maker (combined — counts as one question)
+- Whether the customer is the homeowner or decision maker
 - Whether they have had pest control before
 - Timing / urgency: no deduction if (a) the rep explicitly asks if the customer wants service ASAP, (b) the rep assumes urgency and mentions getting it done as soon as possible, (c) the rep asks any question about timeline or scheduling, or (d) the customer volunteers any information about their timeline or urgency unprompted. Only deduct 2 points if the topic of timing or urgency is never addressed at all by either the rep or the customer.
 
