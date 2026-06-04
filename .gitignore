@@ -3,5 +3,6 @@ uploads/
 calls.json
 .env
 rubric.default.txt
+rubric.txt
 *.aiff
 *.m4a

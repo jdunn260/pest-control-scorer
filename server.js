@@ -33,24 +33,58 @@ const upload = multer({ storage, limits: { fileSize: 200 * 1024 * 1024 } });
 
 // ─── Rubric ───────────────────────────────────────────────────────────────────
 
-const RUBRIC_FILE = path.join(__dirname, 'rubric.txt');
-const DEFAULT_RUBRIC_FILE = path.join(__dirname, 'rubric.default.txt');
+const RUBRIC_JSON_FILE = path.join(__dirname, 'rubric.json');
 
-// Seed default file on first run
-if (!fs.existsSync(DEFAULT_RUBRIC_FILE) && fs.existsSync(RUBRIC_FILE)) {
-  fs.copyFileSync(RUBRIC_FILE, DEFAULT_RUBRIC_FILE);
+function loadRubricJson() {
+  if (fs.existsSync(RUBRIC_JSON_FILE)) {
+    return JSON.parse(fs.readFileSync(RUBRIC_JSON_FILE, 'utf8'));
+  }
+  return { steps: [] };
 }
 
-function loadRubric() {
-  if (fs.existsSync(RUBRIC_FILE)) return fs.readFileSync(RUBRIC_FILE, 'utf8');
-  if (fs.existsSync(DEFAULT_RUBRIC_FILE)) return fs.readFileSync(DEFAULT_RUBRIC_FILE, 'utf8');
-  return '';
+function saveRubricJson(data) {
+  fs.writeFileSync(RUBRIC_JSON_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
 function buildScoringPrompt(transcript, disposition) {
-  return loadRubric()
-    .replace('{DISPOSITION}', disposition)
-    .replace('{TRANSCRIPT}', transcript);
+  const rubric = loadRubricJson();
+  const stepBlocks = rubric.steps
+    .map(s => `${s.header}\n${s.rules}`)
+    .join('\n\n');
+
+  return [
+    `You are a quality assurance assistant for a pest control sales team. Score the following call transcript using the rubric below. The call disposition is: ${disposition}.`,
+    '',
+    'SCORING RULES:',
+    'All reps start at 100 points. Deduct points only where steps are missed.',
+    '',
+    stepBlocks,
+    '',
+    'SCORE CALCULATION:',
+    'After identifying all deductions, calculate the final score as exactly 100 minus the sum of all deductions. Do not round, estimate, or approximate. The score field must equal exactly 100 minus the total deductions — if the math shows 66, the score is 66, not 67 or 68. Show the full math in the calculation field in this format: "100 - [deduction 1] - [deduction 2] ... = [final score]". The number at the end of the calculation string must match the score field exactly.',
+    '',
+    'Respond ONLY with a valid JSON object with this structure:',
+    '{',
+    '  "score": <number>,',
+    '  "calculation": "<string showing math>",',
+    '  "steps": [',
+    '    {"name": "Intro", "deduction": <number>, "note": "<explanation>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "Service description", "deduction": <number>, "note": "<explanation>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "Price", "deduction": <number>, "note": "<explanation>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "First close", "deduction": <number>, "note": "<explanation>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "Multiyear contract", "deduction": <number>, "note": "<explanation or N/A>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "RACs", "deduction": <number>, "note": "<explanation>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "Went over contract", "deduction": <number>, "note": "<explanation or CLOSED ONLY>", "status": "<pass|fail|partial|na>"},',
+    '    {"name": "Payment resolved", "deduction": <number>, "note": "<explanation or CLOSED ONLY>", "status": "<pass|fail|partial|na>"}',
+    '  ],',
+    '  "summary": "<2-3 sentence call summary>",',
+    '  "compliance_note": "<most important missed compliance step or Fully compliant>",',
+    '  "quality_note": "<one coaching note on call quality>"',
+    '}',
+    '',
+    'TRANSCRIPT:',
+    transcript
+  ].join('\n');
 }
 
 // ─── SSE ──────────────────────────────────────────────────────────────────────
@@ -261,28 +295,89 @@ app.patch('/api/calls/:id', (req, res) => {
   res.json({ score, calculation, step });
 });
 
-// Get rubric
-app.get('/api/rubric', (req, res) => {
-  const rubric = loadRubric();
-  const defaultRubric = fs.existsSync(DEFAULT_RUBRIC_FILE)
-    ? fs.readFileSync(DEFAULT_RUBRIC_FILE, 'utf8')
-    : rubric;
-  res.json({ rubric, isDefault: rubric === defaultRubric });
+// Get all rubric steps
+app.get('/api/rubric/steps', (req, res) => {
+  const rubric = loadRubricJson();
+  res.json(rubric.steps);
 });
 
-// Save rubric
-app.post('/api/rubric', (req, res) => {
-  const { rubric } = req.body;
-  if (!rubric || typeof rubric !== 'string') return res.status(400).json({ error: 'rubric text required' });
-  fs.writeFileSync(RUBRIC_FILE, rubric, 'utf8');
-  res.json({ ok: true });
+// Save a step's rules (adds current to history)
+app.patch('/api/rubric/steps/:id', (req, res) => {
+  const { rules } = req.body;
+  if (!rules || typeof rules !== 'string') return res.status(400).json({ error: 'rules text required' });
+
+  const rubric = loadRubricJson();
+  const step = rubric.steps.find(s => s.id === req.params.id);
+  if (!step) return res.status(404).json({ error: 'Step not found' });
+
+  step.history = [
+    { rules: step.rules, savedAt: new Date().toISOString() },
+    ...(step.history || [])
+  ].slice(0, 10);
+
+  step.rules = rules;
+  saveRubricJson(rubric);
+  res.json({ step });
 });
 
-// Reset rubric to default
-app.post('/api/rubric/reset', (req, res) => {
-  if (!fs.existsSync(DEFAULT_RUBRIC_FILE)) return res.status(404).json({ error: 'No default found' });
-  fs.copyFileSync(DEFAULT_RUBRIC_FILE, RUBRIC_FILE);
-  res.json({ ok: true, rubric: fs.readFileSync(DEFAULT_RUBRIC_FILE, 'utf8') });
+// Ask Claude to propose a rewrite for a step
+app.post('/api/rubric/steps/:id/propose', async (req, res) => {
+  const { changeRequest } = req.body;
+  if (!changeRequest) return res.status(400).json({ error: 'changeRequest required' });
+
+  const rubric = loadRubricJson();
+  const step = rubric.steps.find(s => s.id === req.params.id);
+  if (!step) return res.status(404).json({ error: 'Step not found' });
+
+  const prompt = `You are editing a specific step of a QA scoring rubric for pest control sales calls.
+
+Step: "${step.name}"
+Step header (do NOT include in your response): "${step.header}"
+
+Current rules for this step:
+---
+${step.rules}
+---
+
+Manager's requested change: "${changeRequest}"
+
+Rewrite the rules for this step to incorporate the requested change while preserving all other existing rules. Keep the same format, tone, and structure. Return ONLY the updated rules text — no step header, no explanation, plain text only.`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const proposed = message.content[0].text.trim();
+    res.json({ proposed });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Revert a step to a previous history version
+app.post('/api/rubric/steps/:id/revert', (req, res) => {
+  const { versionIndex } = req.body;
+  if (versionIndex === undefined) return res.status(400).json({ error: 'versionIndex required' });
+
+  const rubric = loadRubricJson();
+  const step = rubric.steps.find(s => s.id === req.params.id);
+  if (!step) return res.status(404).json({ error: 'Step not found' });
+  if (!step.history || !step.history[versionIndex]) return res.status(400).json({ error: 'Invalid version' });
+
+  const target = step.history[versionIndex];
+
+  // Push current to history, remove the one being restored, set as current
+  const newHistory = [
+    { rules: step.rules, savedAt: new Date().toISOString() },
+    ...step.history.filter((_, i) => i !== versionIndex)
+  ].slice(0, 10);
+
+  step.rules = target.rules;
+  step.history = newHistory;
+  saveRubricJson(rubric);
+  res.json({ step });
 });
 
 app.listen(PORT, () => {
