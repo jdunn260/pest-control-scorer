@@ -61,7 +61,12 @@ STEP 2 — Service description (max deduction: 10 pts)
 Rep must address caller's primary pest concern and give a brief overview of other service aspects. All or nothing.
 
 STEP 3 — Price (max deduction: 10 pts)
-Rep must start at or above $49 for initial visit and $138 per visit for ongoing service. Monthly billing is acceptable (e.g. $69/month for bimonthly). Deduct 10 if below minimums. EXCEPTION: no deduction if customer mentions existing competitor service, requests a price match, or has a competing quote.
+INITIAL VISIT: Must be at least $49. Anything below $49 is a fail.
+ONGOING SERVICE: The only acceptable recurring plans are:
+- Monthly service at $138/month or higher
+- Bimonthly service (every 2 months) at $138 per visit or higher — this may be presented as $69/month
+Any other frequency — including quarterly, once every 3 months, or anything less frequent than bimonthly — is automatically a fail regardless of the price quoted. If the rep quotes quarterly or any service less frequent than bimonthly, deduct 10 points. Do not evaluate the price amount when the frequency alone makes it a fail.
+EXCEPTION: No deduction if the customer mentions an existing competitor service, requests a price match, or has a competing quote.
 
 STEP 4 — First close (max deduction: 10 pts)
 After pitching price, rep must attempt an option close before waiting for customer acknowledgement. E.g. "Does today or tomorrow work better?" If skipped, deduct 10.
