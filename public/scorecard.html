@@ -5,6 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scorecard — Pest Control Scorer</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .step-card { position: relative; }
+    .step-edit-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      line-height: 1.4;
+    }
+    .step-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .step-edit-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(79,122,255,0.08); }
+
+    .override-panel {
+      display: none;
+      grid-column: 1 / -1;
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .override-panel.open { display: block; }
+    .override-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .override-field { display: flex; flex-direction: column; gap: 5px; }
+    .override-field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .override-select, .override-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .override-select:focus, .override-input:focus { border-color: var(--accent); }
+    .override-select { min-width: 100px; }
+    .override-input[type="number"] { width: 80px; }
+    .override-note-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      resize: none;
+      min-height: 52px;
+      flex: 1;
+      min-width: 200px;
+      transition: border-color 0.15s;
+    }
+    .override-note-input:focus { border-color: var(--accent); }
+    .override-btn-row { display: flex; gap: 8px; }
+    .override-btn-row .btn { width: auto; font-size: 12px; padding: 7px 14px; }
+
+    .override-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--amber);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      margin-left: 6px;
+    }
+    .original-value {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      margin-right: 4px;
+    }
+    .override-note-display {
+      font-size: 11px;
+      color: var(--amber);
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .has-overrides-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
 
@@ -12,6 +119,7 @@
   <a href="/" class="nav-brand">🐛 <span>Pest</span>Score</a>
   <a href="/">Upload</a>
   <a href="/dashboard.html">Dashboard</a>
+  <a href="/rubric.html">Rubric</a>
 </nav>
 
 <div class="page" id="content" style="display:none">
@@ -33,19 +141,20 @@
     </div>
   </div>
 
-  <!-- Calculation -->
+  <div class="has-overrides-banner" id="overrideBanner" style="display:none">
+    ✏ This scorecard has been manually adjusted by a manager.
+  </div>
+
   <div class="card">
     <div class="card-title">Score Calculation</div>
     <div class="calculation-box" id="calculation"></div>
   </div>
 
-  <!-- Steps -->
   <div class="card">
     <div class="card-title">Step Breakdown</div>
     <div class="steps-grid" id="stepsGrid"></div>
   </div>
 
-  <!-- Notes -->
   <div class="card">
     <div class="card-title">Call Analysis</div>
     <div class="info-grid">
@@ -64,7 +173,6 @@
     </div>
   </div>
 
-  <!-- Transcript -->
   <div class="card" id="transcriptCard" style="display:none">
     <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
       Transcript
@@ -86,10 +194,9 @@
 <script>
 const params = new URLSearchParams(location.search);
 const id = params.get('id');
+if (!id) location.href = '/dashboard.html';
 
-if (!id) {
-  location.href = '/dashboard.html';
-}
+let currentCall = null;
 
 function formatDate(iso) {
   const d = new Date(iso);
@@ -98,25 +205,147 @@ function formatDate(iso) {
 }
 
 function statusBadge(status) {
-  const map = {
-    pass: 'status-pass',
-    fail: 'status-fail',
-    partial: 'status-partial',
-    na: 'status-na'
-  };
+  const map = { pass: 'status-pass', fail: 'status-fail', partial: 'status-partial', na: 'status-na' };
   const labels = { pass: 'Pass', fail: 'Fail', partial: 'Partial', na: 'N/A' };
-  const cls = map[status] || 'status-na';
-  return `<span class="step-status-badge ${cls}">${labels[status] || status}</span>`;
+  return `<span class="step-status-badge ${map[status] || 'status-na'}">${labels[status] || status}</span>`;
 }
 
-function deductionDisplay(d) {
-  if (d === null || d === undefined) return '<span class="deduct-na">N/A</span>';
-  if (d === 0) return '<span class="deduct-0">−0</span>';
-  return `<span class="deduct-pos">−${d}</span>`;
+function deductionDisplay(step) {
+  const d = step.deduction;
+  const wasOverridden = step.overridden && step.original_deduction !== undefined && step.original_deduction !== step.deduction;
+  let html = '';
+  if (wasOverridden) {
+    html += `<span class="original-value">−${step.original_deduction}</span>`;
+  }
+  if (d === null || d === undefined) return html + '<span class="deduct-na">N/A</span>';
+  if (d === 0) return html + '<span class="deduct-0">−0</span>';
+  return html + `<span class="deduct-pos">−${d}</span>`;
 }
 
 function escapeHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderStep(step, idx) {
+  const overrideTag = step.overridden
+    ? `<span class="override-badge">✏ Overridden</span>`
+    : '';
+  const overrideNote = step.overridden && step.override_note
+    ? `<div class="override-note-display">Manager note: ${escapeHtml(step.override_note)}</div>`
+    : '';
+  const originalStatusBadge = step.overridden && step.original_status && step.original_status !== step.status
+    ? `<span class="original-value" style="text-decoration:line-through;font-size:11px;margin-right:4px">${step.original_status}</span>`
+    : '';
+
+  return `
+    <div class="step-card" id="step-card-${idx}">
+      <button class="step-edit-btn" onclick="toggleEdit(${idx})" id="edit-btn-${idx}">Edit</button>
+      <div>
+        <div class="step-name">${escapeHtml(step.name)}${overrideTag}</div>
+        <div class="step-note">${escapeHtml(step.note)}${overrideNote}</div>
+      </div>
+      <div>${deductionDisplay(step)}</div>
+      <div>${originalStatusBadge}${statusBadge(step.status)}</div>
+      <div class="override-panel" id="override-panel-${idx}">
+        <div class="override-row">
+          <div class="override-field">
+            <label>Status</label>
+            <select class="override-select" id="ov-status-${idx}">
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+              <option value="partial">Partial</option>
+              <option value="na">N/A</option>
+            </select>
+          </div>
+          <div class="override-field">
+            <label>Deduction</label>
+            <input type="number" class="override-input" id="ov-deduction-${idx}" min="0" max="100" value="0">
+          </div>
+          <div class="override-field" style="flex:1">
+            <label>Override Note</label>
+            <textarea class="override-note-input" id="ov-note-${idx}" placeholder="Reason for override..."></textarea>
+          </div>
+        </div>
+        <div class="override-btn-row">
+          <button class="btn" onclick="saveOverride(${idx})">Save Override</button>
+          <button class="btn btn-ghost" onclick="toggleEdit(${idx})">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleEdit(idx) {
+  const panel = document.getElementById(`override-panel-${idx}`);
+  const btn = document.getElementById(`edit-btn-${idx}`);
+  const isOpen = panel.classList.contains('open');
+
+  // Close all others
+  document.querySelectorAll('.override-panel.open').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.step-edit-btn.active').forEach(b => b.classList.remove('active'));
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    btn.classList.add('active');
+    btn.textContent = 'Cancel';
+
+    // Pre-fill with current values
+    const step = currentCall.scorecard.steps[idx];
+    document.getElementById(`ov-status-${idx}`).value = step.status || 'pass';
+    document.getElementById(`ov-deduction-${idx}`).value = step.deduction || 0;
+    document.getElementById(`ov-note-${idx}`).value = step.override_note || '';
+  } else {
+    btn.textContent = 'Edit';
+  }
+}
+
+async function saveOverride(idx) {
+  const status = document.getElementById(`ov-status-${idx}`).value;
+  const deduction = parseInt(document.getElementById(`ov-deduction-${idx}`).value) || 0;
+  const override_note = document.getElementById(`ov-note-${idx}`).value.trim();
+
+  const btn = document.querySelector(`#override-panel-${idx} .btn`);
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(`/api/calls/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stepIndex: idx, deduction, status, override_note })
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    // Update local state and re-render
+    currentCall.scorecard.steps[idx] = { ...currentCall.scorecard.steps[idx], ...data.step };
+    currentCall.scorecard.score = data.score;
+    currentCall.scorecard.calculation = data.calculation;
+    currentCall.scorecard.has_overrides = true;
+
+    renderSteps();
+    updateScoreDisplay();
+    document.getElementById('calculation').textContent = data.calculation;
+    document.getElementById('overrideBanner').style.display = 'flex';
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Save Override';
+    alert('Failed to save override. Please try again.');
+  }
+}
+
+function renderSteps() {
+  const grid = document.getElementById('stepsGrid');
+  grid.innerHTML = currentCall.scorecard.steps.map((step, idx) => renderStep(step, idx)).join('');
+}
+
+function updateScoreDisplay() {
+  const score = currentCall.scorecard.score;
+  const circle = document.getElementById('scoreCircle');
+  circle.className = 'score-circle';
+  if (score >= 80) circle.classList.add('green');
+  else if (score >= 60) circle.classList.add('amber');
+  else circle.classList.add('red');
+  document.getElementById('scoreNumber').textContent = score;
 }
 
 async function load() {
@@ -124,6 +353,7 @@ async function load() {
     const res = await fetch(`/api/calls/${id}`);
     if (!res.ok) throw new Error('Not found');
     const call = await res.json();
+    currentCall = call;
 
     document.getElementById('loading').style.display = 'none';
 
@@ -135,9 +365,7 @@ async function load() {
     }
 
     const sc = call.scorecard;
-    const score = sc.score;
 
-    // Header
     document.getElementById('repName').textContent = call.rep_name;
     document.getElementById('metaDate').textContent = formatDate(call.created_at);
     document.getElementById('metaDisposition').innerHTML =
@@ -145,35 +373,19 @@ async function load() {
         ? '<span class="badge badge-closed">Closed</span>'
         : '<span class="badge badge-follow">Follow-Up</span>';
 
-    // Score circle
-    const circle = document.getElementById('scoreCircle');
-    document.getElementById('scoreNumber').textContent = score;
-    if (score >= 80) circle.classList.add('green');
-    else if (score >= 60) circle.classList.add('amber');
-    else circle.classList.add('red');
-
-    // Calculation
+    updateScoreDisplay();
     document.getElementById('calculation').textContent = sc.calculation;
 
-    // Steps
-    const grid = document.getElementById('stepsGrid');
-    grid.innerHTML = sc.steps.map(step => `
-      <div class="step-card">
-        <div>
-          <div class="step-name">${escapeHtml(step.name)}</div>
-          <div class="step-note">${escapeHtml(step.note)}</div>
-        </div>
-        <div>${deductionDisplay(step.deduction)}</div>
-        <div>${statusBadge(step.status)}</div>
-      </div>
-    `).join('');
+    if (sc.has_overrides) {
+      document.getElementById('overrideBanner').style.display = 'flex';
+    }
 
-    // Notes
+    renderSteps();
+
     document.getElementById('summary').textContent = sc.summary;
     document.getElementById('complianceNote').textContent = sc.compliance_note;
     document.getElementById('qualityNote').textContent = sc.quality_note;
 
-    // Transcript
     if (call.transcript) {
       const card = document.getElementById('transcriptCard');
       const box = document.getElementById('transcript');
