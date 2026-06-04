@@ -74,13 +74,13 @@ Rep must make at least 3 attempts to overcome objections or make offers. Any 3 a
 
 CLOSED CALLS ONLY:
 STEP 7 — Went over contract (max deduction: 21 pts)
-This step is strictly all or nothing. The rep must clearly communicate all three of the following elements during the contract review portion of the call:
-- Price: any mention of what the customer will be charged
-- Contract length: any mention of the service term or how long the agreement is
-- Cancellation fee: either a specific dollar amount OR an explanation that it means reimbursing/paying back the initial discount or first visit discount
-If any single element is missing, deduct the full 21 points. There is no partial credit under any circumstances. Billing frequency is not a required element for this step.
-Credit is only given for what the rep communicates during the contract review itself. Do not give credit for any element mentioned only earlier in the call (e.g. during the pitch or objection handling).
-Formal or structured language is not required. Conversational confirmation of all three elements is sufficient — do not deduct points if the information is present but delivered informally.
+There are exactly THREE required elements. If all three are present in any form during the contract review, award full points. If any one is missing, deduct 21 points. No partial credit.
+- Price: any mention of what the customer will be charged, even if stated earlier and referenced implicitly
+- Contract length: any mention of the term, number of services, or duration of the agreement
+- Cancellation fee: passing back or reimbursing the initial discount is fully acceptable. A specific dollar amount is NOT required.
+Billing frequency is NOT a required element. Do not deduct points for missing billing frequency.
+Example of a PASS: "4 services, once every 3 months, pay back the initial discount if you cancel early" — price is implied by the service structure, contract length is covered by "4 services," and the cancellation fee is covered by "pay back the initial discount." All three elements are present. This is a pass.
+Conversational or informal delivery is fine. Do not require a formal review format.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
 The rep must make a clear attempt to collect payment information on the call. The following all count as a pass:
