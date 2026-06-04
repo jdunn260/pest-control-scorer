@@ -51,7 +51,7 @@ All reps start at 100 points. Deduct points only where steps are missed.
 
 STEP 1 — Intro (max deduction: 10 pts)
 The rep must ask or confirm all 5 of the following. If the customer volunteers the information unprompted, no deduction for that question. Deduct 2 points per missed question:
-- Zip code / city / location
+- Location: satisfied by any location information — zip code, city, street address, or any combination. If the customer provides or confirms their city or address, that is a pass even if no zip code was given. Only deduct 2 points if no location information whatsoever was provided or confirmed by either party.
 - What pests they are dealing with
 - Whether the customer is the homeowner or decision maker
 - Whether they have had pest control before
