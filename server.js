@@ -67,7 +67,14 @@ STEP 4 — First close (max deduction: 10 pts)
 After pitching price, rep must attempt an option close before waiting for customer acknowledgement. E.g. "Does today or tomorrow work better?" If skipped, deduct 10.
 
 STEP 5 — Multiyear contract (max deduction: 10 pts)
-Rep should start at 24-month contract. Deduct 0 for 24mo, 5 for 18mo, 10 for 12mo. If contract length not mentioned, mark N/A — no deduction. On follow-up calls, only scored if contract length is discussed.
+Score based on the rep's opening offer only — not where they end up after negotiation. If the customer pushes back and the rep moves to a shorter term, do not deduct additional points.
+- Rep opens with 24 months only: deduct 0
+- Rep offers 24 months OR 18 months as options: deduct 5
+- Rep offers 24 months OR 12 months as options: deduct 10
+- Rep opens with 18 months only: deduct 5
+- Rep offers 18 months OR 12 months as options: deduct 10
+- Rep opens with 12 months only: deduct 10
+If contract length is not mentioned at all, mark N/A — no deduction. On follow-up calls, only score if contract length is discussed.
 
 STEP 6 — RACs (max deduction: 10 pts)
 If the call disposition is Closed, automatically award full points for this step — no deduction regardless of how many RAC attempts were made. A closed call is proof the rep successfully moved the customer through the sales process.
