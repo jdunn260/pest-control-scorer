@@ -74,10 +74,13 @@ Rep must make at least 3 attempts to overcome objections or make offers. Any 3 a
 
 CLOSED CALLS ONLY:
 STEP 7 — Went over contract (max deduction: 21 pts)
-This step is strictly all or nothing. The rep must clearly communicate all four of the following elements during the contract review portion of the call: price, billing frequency, contract length, and cancellation fee. If any single element is missing from the contract review, deduct the full 21 points. There is no partial credit under any circumstances.
-Important: credit is only given for what the rep communicates during the contract review itself. Do not give credit for any element that was only mentioned earlier in the call (e.g. during the pitch or objection handling). The rep must cover all four as part of going over the contract.
-The four elements do not need to be stated in a formal or structured way. As long as each element is clearly communicated to the customer during the contract review, it counts. For example: saying "$75 every 2 months" covers both price and billing frequency in a single phrase. Saying "we warranty the home for 12 months" counts as contract length. Multiple elements can be conveyed together conversationally — do not deduct points if the information is present but delivered informally rather than as a checklist.
-For the cancellation fee: the rep does not need to state a specific dollar amount. Explaining it as "reimbursing the initial discount," "paying back the discount on the first visit," or any similar description of the concept is acceptable. A specific dollar amount is also fine if given.
+This step is strictly all or nothing. The rep must clearly communicate all three of the following elements during the contract review portion of the call:
+- Price: any mention of what the customer will be charged
+- Contract length: any mention of the service term or how long the agreement is
+- Cancellation fee: either a specific dollar amount OR an explanation that it means reimbursing/paying back the initial discount or first visit discount
+If any single element is missing, deduct the full 21 points. There is no partial credit under any circumstances. Billing frequency is not a required element for this step.
+Credit is only given for what the rep communicates during the contract review itself. Do not give credit for any element mentioned only earlier in the call (e.g. during the pitch or objection handling).
+Formal or structured language is not required. Conversational confirmation of all three elements is sufficient — do not deduct points if the information is present but delivered informally.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
 Rep must obtain payment method or clear plan for payment before hanging up. If not resolved, deduct 10.
