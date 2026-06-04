@@ -95,8 +95,13 @@ Do not give partial credit. It is all three or nothing.
 
 STEP 8 — Payment resolved (max deduction: 10 pts)
 This step is strictly pass or fail. No partial credit under any circumstances.
-Pass (deduct 0): rep obtained a payment method or established a clear payment plan in any form — card over the phone, directing the customer to enter a card in a portal or service document, any active payment collection attempt the customer is complying with, or any clear plan for how payment will be collected.
-Fail (deduct 10): rep made no attempt to collect payment and defaulted to having the technician collect it at the appointment, or payment was never discussed at all.
+Pass (deduct 0): rep obtained a payment method or established a clear payment plan in any form. All of the following are a pass:
+- Customer provides a card number over the phone
+- Rep directs the customer to a billing station, payment portal, or online agreement and there is any indication the customer completed it — including the customer saying anything like "I think that went through," "done," "completed," or any similar confirmation
+- Rep directs the customer to enter payment in a portal or document and there is no clear indication it failed — give the benefit of the doubt and award full points
+- Any active payment collection attempt the customer is complying with
+The rep does not need to verbally confirm the card type, card number, or explicitly state that payment was secured. If the customer was sent to a portal and nothing suggests it failed, it is a pass.
+Fail (deduct 10): rep made no attempt to collect payment at all — either defaulted to having the technician collect it at the appointment, or payment was never discussed.
 Do not deduct partial points for any reason on this step.
 
 SCORE CALCULATION:
